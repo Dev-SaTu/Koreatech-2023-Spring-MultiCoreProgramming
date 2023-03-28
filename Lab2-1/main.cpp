@@ -26,13 +26,9 @@ int main(int argc, char** argv)
 
 	genRandomInput();
 
-
 	//** 1. Serial code **//
 	timer.onTimer(0);
 
-
-	//** HERE
-	//** Write your code implementing the serial algorithm here
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
 			Y_serial[i] += A[i][j] * X[j];
@@ -41,39 +37,32 @@ int main(int argc, char** argv)
 
 	timer.offTimer(0);
 
-
-
 	//** 2. Parallel code **//
 	timer.onTimer(1);
-
-
-	//** HERE
-	//** Write your code implementing the parallel algorithm here
 	
-	#pragma omp parallel num_threads(omp_get_num_threads())
+	#pragma omp parallel num_threads(8)
 	{
-		printf("%d\n", omp_get_num_threads());
+		#pragma omp for
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				Y_parallel[i] += A[i][j] * X[j];
+			}
+		}
 	}
-
 
 	timer.offTimer(1);
 
-
-
 	//** 3. Result checking code **//
-	bool isCorrect = true; // 원래 false임
+	bool isCorrect = true;
 
-	//** HERE
-	//** Wriet your code that compares results of serial and parallel algorithm
-	// Set the flag 'isCorrect' to true when they are matched
-	for (int i = 0; i < sizeof(float) * m; i++) {
+	for (int i = 0; i < m; i++) {
 		if (Y_serial[i] != Y_parallel[i]) {
 			isCorrect = false;
 			break;
 		}
 	}
 
-	if (isCorrect)
+	if (!isCorrect)
 		printf("Results are not matched :(\n");
 	else
 		printf("Results are matched! :)\n");
